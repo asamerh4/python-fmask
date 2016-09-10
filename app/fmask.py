@@ -759,7 +759,7 @@ def make3Dclouds(fmaskFilenames, fmaskConfig, clumps, numClumps, missingThermal)
     controls.setReferencePixgrid(referencePixgrid)
     controls.setCalcStats(False)
     controls.setNumThreads(5)
-	controls.setJobManagerType('mpi')
+    controls.setJobManagerType('mpi')
     
     applier.apply(cloudShapeFunc, infiles, outfiles, otherargs, controls=controls)
     
