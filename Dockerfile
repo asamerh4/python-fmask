@@ -17,9 +17,8 @@ RUN mkdir /home/f_mesos
 COPY snap-4.0 /home/f_mesos/snap-4.0
 COPY app /home/f_mesos
 
-RUN mv /home/f_mesos/fmask.py /opt/conda/envs/myenv/lib/python2.7/site-packages/fmask/
-RUN chown -R f_mesos:eoc_file.modify_mesos_b /home/f_mesos
-RUN chown -R f_mesos:eoc_file.modify_mesos_b /opt/conda
+#RUN mv /home/f_mesos/fmask.py /opt/conda/envs/myenv/lib/python2.7/site-packages/fmask/
+RUN chown -R f_mesos:eoc_file.modify_mesos_b /home/f_mesos && chown -R f_mesos:eoc_file.modify_mesos_b /opt/conda
 
 #ENV PATH /opt/conda/envs/myenv/bin:$PATH
 #run all ops with this user
