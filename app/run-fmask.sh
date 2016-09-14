@@ -1,19 +1,25 @@
 #!/bin/bash
 set -e
 
+source activate myenv
+
+export PATH=$PATH:/opt/conda/envs/myenv/bin:/bin
+export GDAL_DATA=/opt/conda/envs/myenv/share/gdal
+
+##RIOS
 export RIOS_DFLT_DRIVER='GTiff'
 export RIOS_DFLT_DRIVEROPTIONS='COMPRESS=LZW TILED=YES BLOCKXSIZE=256 BLOCKYSIZE=256'
 export RIOS_DFLT_BLOCKXSIZE=256
 export RIOS_DFLT_BLOCKYSIZE=256
 
-export MKL_NUM_THREADS=1
-export OMP_NUM_THREADS=1,3,5
-#export OMP_DYNAMIC=false
+##TBD...
+export OPENBLAS_NUM_THREADS=1
+export OMP_NUM_THREADS=1
 export OMP_THREAD_LIMIT=1
 export GOTO_NUM_THREADS=1
 export OMP_DISPLAY_ENV=TRUE
 export NUMEXPR_NUM_THREADS=1
-export OPENBLAS_NUM_THREADS=1
+
 
 
 l1File=$(ls /s2/raw_granule/S2*.xml)
@@ -41,11 +47,11 @@ fmask_sentinel2makeAnglesImage.py -i /s2/raw_granule/GRANULE/*/S2*.xml -o angles
 echo "done!"
 echo ""
 echo "-->create the cloud mask image..."
-fmask_sentinel2Stacked.py -a allbands.vrt -z angles.img -o cloud.tif
+fmask_sentinel2Stacked.py -v -a allbands.vrt -z angles.img -o cloud.tif
 echo "done!"
 echo ""
 echo "-->merge cloud-image to original granule..."
-./snap-4.0/bin/gpt -e -c 2G snap-4.0/fmask-read-merge-graph.xml -PmasterProduct=${l1File} -PinputFormat=${format} -t ${outputFile} -f NetCDF4-BEAM cloud.tif
+./snap-4.0/bin/gpt fmask-read-merge-graph.xml -PmasterProduct=${l1File} -PinputFormat=${format} -t ${outputFile} -f NetCDF4-BEAM cloud.tif
 echo "done!"
 echo ""
 echo "-->move to FS"

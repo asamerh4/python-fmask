@@ -1,0 +1,46 @@
+{
+   "name" : "fmask-S2A_OPER_PRD_MSIL1C_PDMC_20160902T201638_R093_V20160901T092032_20160901T092028_T35TLN-45",
+   "command" : "./run-fmask.sh",
+   "shell" : true,
+   
+   "retries" : 0,
+   "owner" : "hubert.asamer@dlr.de",
+  
+   "async" : false,
+   "cpus" : 4,
+   "disk" : 256,
+   "mem" : 2500,
+   "softError" : true,
+   "dataProcessingJobType" : false,
+   "environmentVariables" : [{
+         "name" : "inputId",
+         "value" : "S2A_OPER_PRD_MSIL1C_PDMC_20160902T201638_R093_V20160901T092032_20160901T092028_T35TLN"
+      }
+   ],
+   "highPriority" : false,
+   "runAsUser" : "f_mesos",
+   "container" : {
+      "type" : "docker",
+      "image" : "opus-test08.eoc.dlr.de:5000/s2-fmask:fmask0.4.2-snap4.0-v0.1",
+      "network" : "HOST",
+      "volumes" : [{
+            "hostPath" : "/net/sensors/sentinel2/granules/S2A_OPER_PRD_MSIL1C_PDMC_20160902T201638_R093_V20160901T092032_20160901T092028_T35TLN.SAFE",
+            "containerPath" : "/s2/raw_granule",
+            "mode" : "RO"
+         }, {
+            "hostPath" : "/net/sensors/sentinel2/granules-fmaskd",
+            "containerPath" : "/s2/fmask_granules",
+            "mode" : "RW"
+         }
+      ],
+      "forcePullImage" : false,
+     "parameters" : [{"key":"memory","value":"12g"},{"key":"memory-swap","value":"12g"}]
+   },
+   "constraints" : [
+      [
+         "hostname",
+         "EQUALS",
+         "129.247.240.108"
+      ]
+   ]
+}
