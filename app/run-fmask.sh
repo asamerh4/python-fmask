@@ -20,17 +20,12 @@ export GOTO_NUM_THREADS=1
 export OMP_DISPLAY_ENV=TRUE
 export NUMEXPR_NUM_THREADS=1
 
+#AWS S2-TILES
+#s3://s2-sync/tiles/33/X/WH/2016/9/9/1/ -> S3 input pattern
+#s3://s2-derived/tiles/33/X/WH/2016/9/9/1/ -> S3 output pattern
 
-
-l1File=$(ls /s2/raw_granule/S2*.xml)
-outputFile=${inputId}-fmask.nc
-
-
-if [[ ${inputId:82:1} > M ]]; then
-      format=SENTINEL-2-MSI-20M-UTM${inputId:80:2}N
-else
-      format=SENTINEL-2-MSI-20M-UTM${inputId:80:2}S
-fi
+#get tile from S3
+/opt/conda/bin/aws s3 sync ${inputId} ./tile
 
 echo "###################"
 echo "#pythonfmask 0.4.2#"
@@ -39,27 +34,23 @@ echo ""
 echo "S2-granule: "${inputId}
 echo ""
 echo "-->stack of ALL the bands, at the 20m resolution..."
-gdalbuildvrt -resolution user -tr 20 20 -separate allbands.vrt /s2/raw_granule/GRANULE/*/IMG_DATA/S2*_B0[1-8].jp2 /s2/raw_granule/GRANULE/*/IMG_DATA/S2*_B8A.jp2 /s2/raw_granule/GRANULE/*/IMG_DATA/S2*_B09.jp2 /s2/raw_granule/GRANULE/*/IMG_DATA/S2*_B1[0-2].jp2
+gdalbuildvrt -resolution user -tr 20 20 -separate allbands.vrt tile/B0[1-8].jp2 tile/B8A.jp2 tile/B09.jp2 tile/B1[0-2].jp2
 echo "done!"
 echo ""
 echo "-->Make a separate image of the per-pixel sun and satellite angles..."
-fmask_sentinel2makeAnglesImage.py -i /s2/raw_granule/GRANULE/*/S2*.xml -o angles.img
+fmask_sentinel2makeAnglesImage.py -i tile/*.xml -o angles.img
 echo "done!"
 echo ""
 echo "-->create the cloud mask image..."
-fmask_sentinel2Stacked.py -v -a allbands.vrt -z angles.img -o cloud.tif
+fmask_sentinel2Stacked.py -v -a allbands.vrt -z angles.img -o tile/CLOUDMASK.tif
 echo "done!"
 echo ""
-echo "-->merge cloud-image to original granule..."
-./snap-4.0/bin/gpt fmask-read-merge-graph.xml -PmasterProduct=${l1File} -PinputFormat=${format} -t ${outputFile} -f NetCDF4-BEAM cloud.tif
-echo "done!"
-echo ""
-echo "-->move to FS"
-mv ${outputFile} /s2/fmask_granules/
+echo "-->move to S3"
+/opt/conda/bin/aws s3 sync tile/ ${outputId}
 echo "done! bye."
 
-rm ~/*.tif*
 rm ~/*.img*
 rm ~/*.vrt*
+rm -rf ~/tile
 
 
