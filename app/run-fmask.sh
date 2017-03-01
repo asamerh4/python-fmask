@@ -24,6 +24,9 @@ export NUMEXPR_NUM_THREADS=1
 #s3://s2-sync/tiles/33/X/WH/2016/9/9/1/ -> S3 input pattern
 #s3://s2-derived/tiles/33/X/WH/2016/9/9/1/ -> S3 output pattern
 
+#enable S3-accelerated endpoints
+/opt/conda/bin/aws configure set default.s3.use_accelerate_endpoint true
+
 #get tile from S3
 /opt/conda/bin/aws s3 sync ${inputId} ./tile
 
