@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 source activate myenv
 
@@ -26,6 +26,7 @@ export NUMEXPR_NUM_THREADS=1
 
 #enable S3-accelerated endpoints
 /opt/conda/bin/aws configure set default.s3.use_accelerate_endpoint true
+/opt/conda/bin/aws configure set default.s3.max_concurrent_requests 50
 
 #get tile from S3
 /opt/conda/bin/aws s3 sync ${inputId} ./tile
